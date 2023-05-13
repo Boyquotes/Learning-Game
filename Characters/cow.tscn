@@ -1,0 +1,99 @@
+[gd_scene load_steps=14 format=3 uid="uid://dxnrd55unb3dl"]
+
+[ext_resource type="Script" path="res://Characters/cow.gd" id="1_fnrgs"]
+[ext_resource type="Texture2D" uid="uid://bv2meakudcd13" path="res://Art/Characters/Free Cow Sprites.png" id="1_kvisn"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_10kt6"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0d5vm"]
+animation = &"walk"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_rganh"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_t33ur"]
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_w773j"]
+advance_mode = 0
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_t31ub"]
+states/Idle/node = SubResource("AnimationNodeAnimation_10kt6")
+states/Idle/position = Vector2(345, 100)
+states/Start/position = Vector2(222, 100)
+states/Walk/node = SubResource("AnimationNodeAnimation_0d5vm")
+states/Walk/position = Vector2(445, 100)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_rganh"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_t33ur"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_w773j")]
+
+[sub_resource type="AnimationNodeStateMachinePlayback" id="AnimationNodeStateMachinePlayback_rl8g1"]
+
+[sub_resource type="Animation" id="Animation_eko5a"]
+resource_name = "idle"
+length = 2.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.7, 1, 1.3, 1.6, 1.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 2, 0, 2, 0, 2, 1]
+}
+
+[sub_resource type="Animation" id="Animation_oij1i"]
+resource_name = "walk"
+length = 0.4
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [3, 4]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ko6k8"]
+_data = {
+"idle": SubResource("Animation_eko5a"),
+"walk": SubResource("Animation_oij1i")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8v8pd"]
+size = Vector2(16, 5)
+
+[node name="Cow" type="CharacterBody2D"]
+script = ExtResource("1_fnrgs")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_kvisn")
+hframes = 3
+vframes = 2
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeStateMachine_t31ub")
+anim_player = NodePath("../AnimationPlayer")
+active = true
+parameters/playback = SubResource("AnimationNodeStateMachinePlayback_rl8g1")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_ko6k8")
+}
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, 10.5)
+shape = SubResource("RectangleShape2D_8v8pd")
+
+[node name="Timer" type="Timer" parent="."]
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
